@@ -9,7 +9,7 @@
     "build:prod": "ng build --configuration production"
   },
   "private": true,
-  "packageManager": "npm@11.6.1",
+  "packageManager": "npm@12.2.3",
   "dependencies": {
     "@angular/common": "^22.2.0",
     "@angular/compiler": "^22.2.0",

@@ -18,7 +18,7 @@ concurrency:
 jobs:
   scan-and-build:
     name: Scan Guatemala, commit state, build frontend
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     steps:
       - name: Checkout repository
@@ -75,7 +75,7 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     needs: scan-and-build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
