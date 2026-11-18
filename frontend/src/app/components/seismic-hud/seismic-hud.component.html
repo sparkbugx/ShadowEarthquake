@@ -11,11 +11,14 @@
   <div class="stage__art-box">
   <img
     class="stage__art"
-    src="assets/shadow-bg-clean.png"
+    src="assets/shadow-bg-base.png"
     alt="1-bit pixel art: a masked figure in a tiled corridor, seen from first person holding a blade"
     width="800"
     height="600"
   />
+  <!-- Both hands are cut out by scanner/split-hand-layer.py so they can sway. -->
+  <img class="stage__hand stage__hand--left" src="assets/shadow-hand-left.png" alt="" aria-hidden="true" width="308" height="127" />
+  <img class="stage__hand" src="assets/shadow-hand.png" alt="" aria-hidden="true" width="279" height="359" />
 
   <div class="hud-overlay" [class.hud-overlay--alert]="alert()" role="region" aria-live="polite">
     <h1 class="hud__title">{{ t().title }}</h1>

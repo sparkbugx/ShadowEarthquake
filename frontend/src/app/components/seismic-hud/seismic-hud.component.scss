@@ -35,6 +35,46 @@
   user-select: none;
 }
 
+/* Right hand + blade layer, placed over the exact spot it was cut from
+   (bbox 545,265 → 824,624 on the 800×600 art; the extra 24px past the edge
+   is padding so the hand never shows a gap at the screen edge). */
+.stage__hand {
+  position: absolute;
+  left: calc(545 / 800 * 100%);
+  top: calc(265 / 600 * 100%);
+  width: calc(279 / 800 * 100%);
+  height: calc(359 / 600 * 100%);
+  image-rendering: pixelated;
+  user-select: none;
+  pointer-events: none;
+  /* Pivot near the wrist, just off the bottom of the art. */
+  transform-origin: 70% 100%;
+  /* One art pixel at the current scale, so motion stays on the pixel grid. */
+  --px: calc(var(--art-w) / 800);
+  animation: hand-idle 3.6s ease-in-out infinite;
+}
+
+/* Left hand (bbox -24,497 → 284,624: padded past the left and bottom edges).
+   Own rhythm, out of step with the right hand, so they don't move in sync. */
+.stage__hand--left {
+  left: calc(-24 / 800 * 100%);
+  top: calc(497 / 600 * 100%);
+  width: calc(308 / 800 * 100%);
+  height: calc(127 / 600 * 100%);
+  /* Pivot AT the grip (art 235,540 = the curled finger on the handle):
+     the fingers sway, the finger around the still handle only turns. */
+  transform-origin: 84% 34%;
+  animation: hand-left-idle 4.4s ease-in-out -1.3s infinite;
+}
+
+/* Earthquake alert: both hands tremble. */
+.stage--alert .stage__hand {
+  animation: hand-tremble 0.24s steps(2, end) infinite;
+}
+.stage--alert .stage__hand--left {
+  animation-name: hand-left-tremble;
+}
+
 .stage--alert {
   animation: screen-shake 4s steps(1, end) infinite;
 }
@@ -418,7 +458,39 @@
   100% { opacity: 0.2; }
 }
 
+/* First-person idle sway: breathe up, drift, tilt the blade a little.
+   Only moves up/sideways so the cut-out edge at the bottom stays hidden. */
+@keyframes hand-idle {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(calc(var(--px) * -2), calc(var(--px) * -4)) rotate(-1deg); }
+  50% { transform: translate(0, calc(var(--px) * -1)) rotate(0.3deg); }
+  75% { transform: translate(calc(var(--px) * 2), calc(var(--px) * -3)) rotate(0.8deg); }
+}
+
+/* Left hand: a slower breath, the fingers lifting and settling. */
+@keyframes hand-left-idle {
+  /* Rotation only: any translate would slide the grip off the handle. */
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(1.4deg); }
+  60% { transform: rotate(-0.4deg); }
+  80% { transform: rotate(0.6deg); }
+}
+
+@keyframes hand-left-tremble {
+  0% { transform: rotate(0.8deg); }
+  50% { transform: rotate(-0.6deg); }
+  100% { transform: rotate(0.3deg); }
+}
+
+@keyframes hand-tremble {
+  0% { transform: translate(calc(var(--px) * -1), calc(var(--px) * -2)) rotate(-0.6deg); }
+  50% { transform: translate(calc(var(--px) * 1), calc(var(--px) * -1)) rotate(0.6deg); }
+  100% { transform: translate(0, calc(var(--px) * -2)) rotate(0deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .stage__hand,
+  .stage--alert .stage__hand,
   .stage--alert,
   .hud-overlay--alert,
   .hud__banner--blink {
