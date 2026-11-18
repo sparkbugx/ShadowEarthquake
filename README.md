@@ -137,7 +137,7 @@ Versions verified when the project was built (2026-11-17):
 | Database | PostgreSQL (Docker `postgres:18-alpine`) | **18** |
 | Scanner | Node.js (native `fetch`, ESM) | **LTS (≥ 22)** |
 | Image processing | `sharp` | 0.35 |
-| CI/CD | GitHub Actions (`ubuntu-26.04` runner) + GitHub Pages | checkout v6, setup-node v6, deploy-pages v4 |
+| CI/CD | GitHub Actions (`ubuntu-26.04` runner) + GitHub Pages | checkout v7, setup-node v7, configure-pages v6, upload-pages-artifact v5, deploy-pages v5 (all Node 24) |
 
 > **Why .NET 10 and not .NET 11?** EF Core 11 is out, but the PostgreSQL provider (`Npgsql.EntityFrameworkCore.PostgreSQL`) is still at 11.0.0-rc. .NET 10 LTS + EF Core 10 + Npgsql 10 is the newest **fully stable** combination. To upgrade, change `<TargetFramework>` to `net11.0` and bump the three EF/Npgsql packages once Npgsql 11 is stable.
 
