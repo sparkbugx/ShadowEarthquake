@@ -11,13 +11,6 @@ import { DecimalPipe } from '@angular/common';
 import { Earthquake } from '../../models/seismic.model';
 import { SeismicService } from '../../services/seismic.service';
 
-const GT_DATE = new Intl.DateTimeFormat('en-CA', {
-  timeZone: 'America/Guatemala',
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-});
-
 /** Scans arrive every 15 min; GitHub cron can lag, so only flag data older than this. */
 const STALE_AFTER_MS = 45 * 60 * 1000;
 
@@ -50,12 +43,10 @@ export class SeismicHudComponent {
   protected readonly alert = this.seismic.hasQuakeInLast15Min;
 
   protected readonly slots = computed<Slot[]>(() => {
-    // Re-evaluate relative labels ("YESTERDAY", "2 DAYS AGO") on every poll.
-    const now = this.seismic.lastFetchedAt() ?? new Date();
     const quakes = this.seismic.recentEarthquakes();
     return [0, 1, 2, 3].map((i) => {
       const q = quakes[i] ?? null;
-      return { index: i, quake: q, label: q ? slotLabel(q, now) : '-- NO RECORD --' };
+      return { index: i, quake: q, label: q ? slotLabel(q) : '-- NO RECORD --' };
     });
   });
 
@@ -123,19 +114,10 @@ export class SeismicHudComponent {
   }
 }
 
-/** "[4.3M] ESCUINTLA - 14:20 CST" | "- YESTERDAY" | "- 2 DAYS AGO" | "- 2026-03-04" */
-function slotLabel(q: Earthquake, now: Date): string {
+/** Every slot uses the same absolute format: "[4.3M] ESCUINTLA - 2026-10-15 14:20 CST" */
+function slotLabel(q: Earthquake): string {
   const mag = `[${q.magnitude.toFixed(1)}M]`;
   const region = (q.region || q.place).toUpperCase();
-  const quakeDay = q.occurredAtGuatemala.slice(0, 10);
-  const today = GT_DATE.format(now);
-  const days = Math.round((Date.parse(today) - Date.parse(quakeDay)) / 86_400_000);
-
-  let when: string;
-  if (days <= 0) when = `${q.occurredAtGuatemala.slice(11, 16)} CST`;
-  else if (days === 1) when = 'YESTERDAY';
-  else if (days <= 30) when = `${days} DAYS AGO`;
-  else when = quakeDay;
-
+  const when = `${q.occurredAtGuatemala.slice(0, 10)} ${q.occurredAtGuatemala.slice(11, 16)} CST`;
   return `${mag} ${region} - ${when}`;
 }
