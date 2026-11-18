@@ -39,20 +39,82 @@
   animation: screen-shake 4s steps(1, end) infinite;
 }
 
-.stage__footer {
+.hud-footer-bar {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: max(8px, env(safe-area-inset-bottom));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
   margin: 0;
-  padding: 0 16px;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  background-color: rgba(0, 0, 0, 0.92);
+  border: 1px solid #3a3a3a;
+  box-shadow: 3px 3px 0px #000000;
+  padding: 5px 12px;
+  white-space: nowrap;
   text-align: center;
+  color: #b8b8b8;
   font-family: 'VT323', monospace;
-  font-size: clamp(13px, 1.1vw, 18px);
-  letter-spacing: 1px;
-  color: var(--se-dim);
-  text-shadow: 0 0 4px #000, 0 0 2px #000;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   pointer-events: none;
+}
+
+/* Narrow phones: wrap inside the pill rather than clip off-screen. */
+@media (max-width: 420px) {
+  .hud-footer-bar {
+    white-space: normal;
+    width: max-content;
+  }
+}
+
+.brutalist-lang-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  background-color: #0a0a0a;
+  color: #f0f0f0;
+  border: 2px solid #f0f0f0;
+  border-radius: 0;
+  box-shadow: 4px 4px 0px #888888;
+  font-family: 'Press Start 2P', 'VT323', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.08s steps(2), box-shadow 0.08s steps(2), background-color 0.08s steps(2), color 0.08s steps(2);
+}
+
+.brutalist-lang-btn:hover {
+  background-color: #dcdcdc;
+  color: #050505;
+  border-color: #050505;
+  box-shadow: 4px 4px 0px #f0f0f0;
+}
+
+.brutalist-lang-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0px #888888;
+}
+
+.brutalist-lang-btn:focus-visible {
+  outline: 2px dashed #f0f0f0;
+  outline-offset: 4px;
+}
+
+.brutalist-lang-btn .btn-arrow {
+  font-size: 13px;
+  line-height: 1;
 }
 
 /* ---------- HUD overlay (where "ACTIONS" used to be) ---------- */
@@ -106,6 +168,35 @@
   font-size: calc(7 * var(--u));
   line-height: 1.6;
   color: #ffffff;
+}
+
+.hud__status-1,
+.hud__status-2 {
+  margin: 0;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 1.6;
+}
+
+.hud__status-1 {
+  font-size: calc(7 * var(--u));
+  color: #ffffff;
+}
+
+.hud__status-1--alert {
+  color: var(--se-red);
+  text-shadow:
+    calc(1 * var(--u)) 0 0 #000,
+    0 0 calc(6 * var(--u)) rgba(255, 42, 42, 0.9);
+}
+
+.hud__status-2 {
+  margin-top: 4px;
+  margin-bottom: 10px;
+  font-family: 'VT323', monospace;
+  font-size: calc(14 * var(--u));
+  line-height: 1;
+  color: #a8a8a8;
 }
 
 .hud__banner--alert {

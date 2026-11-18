@@ -1,4 +1,13 @@
 <section class="stage" [class.stage--alert]="alert()" aria-label="ShadowEarthquake Guatemala seismic monitor">
+  <button
+    type="button"
+    class="brutalist-lang-btn"
+    (click)="toggleLanguage()"
+    [attr.aria-label]="t().toggleAria">
+    <span class="btn-label">{{ t().toggle }}</span>
+    <span class="btn-arrow" aria-hidden="true">→</span>
+  </button>
+
   <div class="stage__art-box">
   <img
     class="stage__art"
@@ -9,22 +18,24 @@
   />
 
   <div class="hud-overlay" [class.hud-overlay--alert]="alert()" role="region" aria-live="polite">
-    <h1 class="hud__title">SEISMIC ACTIONS - GTM</h1>
+    <h1 class="hud__title">{{ t().title }}</h1>
     <div class="hud__rule" aria-hidden="true"></div>
 
     @if (seismic.loading()) {
-      <p class="hud__banner hud__banner--blink">[ SCANNING SEISMIC NETWORK... ]</p>
+      <p class="hud__banner hud__banner--blink">{{ t().scanning }}</p>
     } @else if (seismic.error(); as err) {
       <p class="hud__banner hud__banner--alert">[ {{ err }} ]</p>
     } @else if (state(); as s) {
       @if (s.earthquakeInLast15Minutes) {
-        <p class="hud__banner hud__banner--alert">[ ! SEISMIC ACTIVITY DETECTED IN LAST 15 MIN ! ]</p>
+        <p class="hud__status-1 hud__status-1--alert">{{ t().alert1 }}</p>
+        <p class="hud__status-2">{{ t().alert2 }}</p>
       } @else {
-        <p class="hud__banner">[ NO EARTHQUAKE REGISTERED IN THE LAST 15 MINUTES ]</p>
+        <p class="hud__status-1">{{ t().calm1 }}</p>
+        <p class="hud__status-2">{{ t().calm2 }}</p>
       }
-      <p class="hud__scan">LAST SCAN: {{ s.lastScanFormattedCST ?? 'PENDING' }}</p>
+      <p class="hud__scan">{{ t().lastScan }} {{ s.lastScanFormattedCST ?? t().pending }}</p>
       @if (staleMinutes(); as mins) {
-        <p class="hud__stale">! SCAN DATA IS {{ mins }} MIN OLD</p>
+        <p class="hud__stale">{{ t().stale(mins) }}</p>
       }
     }
 
@@ -52,54 +63,54 @@
   </div>
 </section>
 
-<p class="stage__footer">
-  SOURCE: USGS FDSN &middot;
-  {{ seismic.source() === 'api' ? 'LIVE API' : seismic.source() === 'static' ? 'REPO SNAPSHOT' : '...' }}
-  &middot; AUTO-REFRESH 60S &middot; KEYS 1-4
+<p class="hud-footer-bar">
+  {{ t().footerSource }}: USGS FDSN &middot;
+  {{ seismic.source() === 'api' ? t().liveApi : seismic.source() === 'static' ? t().snapshot : '...' }}
+  &middot; {{ t().autoRefresh }} &middot; {{ t().keys }}
 </p>
 
 <dialog #detailDialog class="modal" aria-labelledby="modal-title" (close)="onDialogClosed()" (click)="onDialogClick($event)">
   @if (selected(); as q) {
     <div class="modal__panel">
       <header class="modal__header">
-        <h2 id="modal-title">TREMOR REPORT</h2>
-        <button type="button" class="modal__close" (click)="close()" aria-label="Close">[X]</button>
+        <h2 id="modal-title">{{ t().report }}</h2>
+        <button type="button" class="modal__close" (click)="close()" [attr.aria-label]="t().close">[X]</button>
       </header>
       <div class="hud__rule" aria-hidden="true"></div>
 
       <dl class="modal__grid">
-        <dt>MAGNITUDE</dt>
+        <dt>{{ t().magnitude }}</dt>
         <dd class="modal__mag">{{ q.magnitude | number: '1.1-1' }} M</dd>
 
-        <dt>REGION</dt>
+        <dt>{{ t().region }}</dt>
         <dd>{{ regionLabel(q) }}</dd>
 
-        <dt>PLACE</dt>
+        <dt>{{ t().location }}</dt>
         <dd>{{ q.place }}</dd>
 
-        <dt>COORDINATES</dt>
+        <dt>{{ t().coordinates }}</dt>
         <dd>
           <a [href]="mapUrl(q)" target="_blank" rel="noopener">
             {{ q.latitude | number: '1.4-4' }}&deg;, {{ q.longitude | number: '1.4-4' }}&deg;
           </a>
         </dd>
 
-        <dt>DEPTH</dt>
+        <dt>{{ t().depth }}</dt>
         <dd>{{ q.depthKm | number: '1.1-1' }} KM</dd>
 
-        <dt>TIMESTAMP</dt>
+        <dt>{{ t().time }}</dt>
         <dd>{{ q.occurredAtGuatemala }}</dd>
 
-        <dt>EVENT ID</dt>
+        <dt>{{ t().eventId }}</dt>
         <dd>{{ q.externalId }}</dd>
 
-        <dt>SOURCE</dt>
+        <dt>{{ t().source }}</dt>
         <dd>
-          <a [href]="q.sourceUrl" target="_blank" rel="noopener">{{ sourceName(q) }} EVENT PAGE &gt;</a>
+          <a [href]="q.sourceUrl" target="_blank" rel="noopener">{{ sourceName(q) }} {{ t().eventPage }} &gt;</a>
         </dd>
       </dl>
 
-      <p class="modal__hint">REGION = NEAREST DEPARTMENT TO EPICENTER &middot; ESC TO CLOSE</p>
+      <p class="modal__hint">{{ t().hint }} &middot; {{ t().close }}</p>
     </div>
   }
 </dialog>

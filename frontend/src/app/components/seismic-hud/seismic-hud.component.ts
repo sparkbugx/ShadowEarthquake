@@ -10,6 +10,7 @@ import {
 import { DecimalPipe } from '@angular/common';
 import { Earthquake } from '../../models/seismic.model';
 import { SeismicService } from '../../services/seismic.service';
+import { LanguageService } from '../../services/language.service';
 
 /** Scans arrive every 15 min; GitHub cron can lag, so only flag data older than this. */
 const STALE_AFTER_MS = 45 * 60 * 1000;
@@ -32,6 +33,9 @@ interface Slot {
 })
 export class SeismicHudComponent {
   protected readonly seismic = inject(SeismicService);
+  private readonly lang = inject(LanguageService);
+  protected readonly currentLang = this.lang.currentLang;
+  protected readonly t = this.lang.t;
 
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('detailDialog');
 
@@ -46,7 +50,7 @@ export class SeismicHudComponent {
     const quakes = this.seismic.recentEarthquakes();
     return [0, 1, 2, 3].map((i) => {
       const q = quakes[i] ?? null;
-      return { index: i, quake: q, label: q ? slotLabel(q) : '-- NO RECORD --' };
+      return { index: i, quake: q, label: q ? slotLabel(q) : this.t().noRecord };
     });
   });
 
@@ -60,6 +64,10 @@ export class SeismicHudComponent {
 
   constructor() {
     this.seismic.startPolling();
+  }
+
+  protected toggleLanguage(): void {
+    this.lang.toggle();
   }
 
   protected open(slot: Slot): void {
@@ -106,7 +114,7 @@ export class SeismicHudComponent {
   /** Departments get ", GUATEMALA"; border events keep their country (e.g. "MEXICO"). */
   protected regionLabel(q: Earthquake): string {
     const neighbours = ['MEXICO', 'EL SALVADOR', 'HONDURAS', 'BELIZE'];
-    return neighbours.includes(q.region) ? `${q.region} (NEAR GUATEMALA)` : `${q.region}, GUATEMALA`;
+    return neighbours.includes(q.region) ? `${q.region} (${this.t().near})` : `${q.region}, GUATEMALA`;
   }
 
   protected sourceName(q: Earthquake): string {
