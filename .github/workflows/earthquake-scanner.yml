@@ -2,7 +2,7 @@ name: ShadowEarthquake 15-Minute Scanner
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '2,17,32,47 * * * *'
   workflow_dispatch:
 
 permissions:
