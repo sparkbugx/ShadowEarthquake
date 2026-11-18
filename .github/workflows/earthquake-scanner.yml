@@ -1,16 +1,23 @@
 name: ShadowEarthquake 15-Minute Scanner
 
 on:
+  # PRIMARY trigger: an external cron (VPS crontab or cron-job.org) calls the
+  # GitHub API every 15 minutes. GitHub's own scheduler is best-effort and
+  # routinely delays or drops high-frequency schedules, so it cannot be the
+  # only trigger for a 15-minute cadence.
+  repository_dispatch:
+    types: [scan]
+  # FALLBACK trigger: off the top of the hour to dodge GitHub's peak-load drops.
   schedule:
-    - cron: '2,17,32,47 * * * *'
+    - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
 
+# Nothing may write unless a job asks for it below (same pattern as REDEYE).
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: read
 
-# Never run two scans at once (avoids push races); let the running one finish.
+# Never run two scans at once (avoids push races). If triggers pile up,
+# GitHub keeps only the newest pending run, which is what we want.
 concurrency:
   group: earthquake-scanner
   cancel-in-progress: false
@@ -19,15 +26,19 @@ jobs:
   scan-and-build:
     name: Scan Guatemala, commit state, build frontend
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 12
+    permissions:
+      contents: write # push the updated state JSON
+    env:
+      TZ: America/Guatemala
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js (latest LTS)
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
+          node-version: 24
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -39,21 +50,31 @@ jobs:
 
       - name: Commit & push updated seismic state
         run: |
-          SCAN_TIME=$(TZ="America/Guatemala" date +"%Y-%m-%d %H:%M:%S CST")
+          SCAN_TIME=$(date +"%Y-%m-%d %H:%M:%S CST")
           git config user.name "ShadowEarthquake-Bot"
           git config user.email "bot@shadowearthquake.local"
           git add frontend/public/assets/data/guatemala-seismic-state.json
-          git commit -m "New update for the earthquake in Guatemala - ${SCAN_TIME}" --allow-empty
-          
-          # Use current branch (HEAD) instead of event payload property
-          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          if git diff --cached --quiet; then
+            echo "State file unchanged; nothing to commit."
+            exit 0
+          fi
+          git commit -m "New update for the earthquake in Guatemala - ${SCAN_TIME}"
+
+          BRANCH="${GITHUB_REF_NAME:-main}"
           for attempt in 1 2 3; do
-            git pull --rebase --autostash origin "${CURRENT_BRANCH}" && git push origin "${CURRENT_BRANCH}" && break
-            echo "Push attempt ${attempt} failed, retrying..."; sleep $((attempt * 5))
+            if git pull --rebase --autostash origin "$BRANCH" && git push origin "HEAD:$BRANCH"; then
+              exit 0
+            fi
+            echo "Push attempt ${attempt} failed, retrying..."
+            sleep $((attempt * 5))
           done
+          echo "::error::Could not push the state update after 3 attempts."
+          exit 1
 
       - name: Install frontend dependencies
         working-directory: frontend
+        # Keep `npm install`: frontend/package-lock.json is out of sync with
+        # package.json (missing @emnapi/* optional deps), so `npm ci` fails.
         run: npm install --no-audit --no-fund
 
       - name: Build Angular (production)
@@ -75,6 +96,10 @@ jobs:
     name: Deploy to GitHub Pages
     needs: scan-and-build
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
