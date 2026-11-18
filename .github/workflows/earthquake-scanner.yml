@@ -55,7 +55,9 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: frontend
-        run: npm ci
+        # npm ci fails on Linux when the lock file was generated on Windows (npm drops
+        # platform-specific optional deps like @emnapi/*). npm install resolves them.
+        run: npm install --no-audit --no-fund
 
       - name: Build Angular (production)
         working-directory: frontend
