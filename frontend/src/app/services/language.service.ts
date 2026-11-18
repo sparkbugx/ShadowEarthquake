@@ -10,7 +10,7 @@ const STRINGS = {
     title: 'SEISMIC ACTIONS - GTM',
     scanning: '[ SCANNING SEISMIC NETWORK... ]',
     calm1: '[ NO EARTHQUAKE REGISTERED ]',
-    calm2: 'REVIEWED IN THE LAST 15 MINUTES',
+    calm2: 'LAST REVIEW:',
     alert1: '[ ! EARTHQUAKE ACTIVITY REGISTERED ! ]',
     alert2: 'DETECTED IN THE LAST 15 MINUTES',
     lastScan: 'LAST SCAN:',
@@ -42,7 +42,7 @@ const STRINGS = {
     title: 'ACCIONES SÍSMICAS - GTM',
     scanning: '[ ESCANEANDO RED SÍSMICA... ]',
     calm1: '[ SIN SISMOS REGISTRADOS ]',
-    calm2: 'REVISADO EN LOS ÚLTIMOS 15 MINUTOS',
+    calm2: 'ÚLTIMA REVISIÓN:',
     alert1: '[ ! ACTIVIDAD SÍSMICA REGISTRADA ! ]',
     alert2: 'DETECTADO EN LOS ÚLTIMOS 15 MINUTOS',
     lastScan: 'ÚLTIMO ESCANEO:',
@@ -84,6 +84,18 @@ export class LanguageService {
   constructor() {
     const doc = inject(DOCUMENT);
     effect(() => doc.documentElement.setAttribute('lang', this.currentLang()));
+  }
+
+  /**
+   * Reorders a leading ISO date ("2026-10-15 14:20 CST") for the active language:
+   * English MM/DD/YYYY ("10/15/2026 14:20 CST"), Spanish DD/MM/YYYY ("15/10/2026 14:20 CST").
+   */
+  formatDate(value: string | null | undefined): string {
+    if (!value) return '';
+    return value.replace(/^(\d{4})-(\d{2})-(\d{2})[T ]?/, (_, y, m, d, offset, all: string) => {
+      const date = this.currentLang() === 'es' ? `${d}/${m}/${y}` : `${m}/${d}/${y}`;
+      return all.length > 10 ? `${date} ` : date;
+    });
   }
 
   toggle(): void {

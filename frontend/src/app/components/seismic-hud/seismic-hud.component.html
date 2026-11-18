@@ -31,9 +31,10 @@
         <p class="hud__status-2">{{ t().alert2 }}</p>
       } @else {
         <p class="hud__status-1">{{ t().calm1 }}</p>
-        <p class="hud__status-2">{{ t().calm2 }}</p>
+        <p class="hud__status-2">{{ t().calm2 }} {{ (fmt(s.lastScanFormattedCST) || t().pending) }}</p>
+      } @if (s.earthquakeInLast15Minutes) {
+        <p class="hud__scan">{{ t().lastScan }} {{ (fmt(s.lastScanFormattedCST) || t().pending) }}</p>
       }
-      <p class="hud__scan">{{ t().lastScan }} {{ s.lastScanFormattedCST ?? t().pending }}</p>
       @if (staleMinutes(); as mins) {
         <p class="hud__stale">{{ t().stale(mins) }}</p>
       }
@@ -99,7 +100,7 @@
         <dd>{{ q.depthKm | number: '1.1-1' }} KM</dd>
 
         <dt>{{ t().time }}</dt>
-        <dd>{{ q.occurredAtGuatemala }}</dd>
+        <dd>{{ fmt(q.occurredAtGuatemala) }}</dd>
 
         <dt>{{ t().eventId }}</dt>
         <dd>{{ q.externalId }}</dd>

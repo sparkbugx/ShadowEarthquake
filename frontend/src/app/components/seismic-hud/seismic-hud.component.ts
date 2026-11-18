@@ -36,6 +36,7 @@ export class SeismicHudComponent {
   private readonly lang = inject(LanguageService);
   protected readonly currentLang = this.lang.currentLang;
   protected readonly t = this.lang.t;
+  protected readonly fmt = (v: string | null | undefined) => this.lang.formatDate(v);
 
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('detailDialog');
 
@@ -50,7 +51,7 @@ export class SeismicHudComponent {
     const quakes = this.seismic.recentEarthquakes();
     return [0, 1, 2, 3].map((i) => {
       const q = quakes[i] ?? null;
-      return { index: i, quake: q, label: q ? slotLabel(q) : this.t().noRecord };
+      return { index: i, quake: q, label: q ? slotLabel(q, this.fmt) : this.t().noRecord };
     });
   });
 
@@ -122,10 +123,9 @@ export class SeismicHudComponent {
   }
 }
 
-/** Every slot uses the same absolute format: "[4.3M] ESCUINTLA - 2026-10-15 14:20 CST" */
-function slotLabel(q: Earthquake): string {
+/** Every slot uses the same absolute format, e.g. "[4.3M] ESCUINTLA - 10/15/2026 14:20 CST" (ES: 15/10/2026). */
+function slotLabel(q: Earthquake, fmt: (v: string) => string): string {
   const mag = `[${q.magnitude.toFixed(1)}M]`;
   const region = (q.region || q.place).toUpperCase();
-  const when = `${q.occurredAtGuatemala.slice(0, 10)} ${q.occurredAtGuatemala.slice(11, 16)} CST`;
-  return `${mag} ${region} - ${when}`;
+  return `${mag} ${region} - ${fmt(q.occurredAtGuatemala.slice(0, 16))} CST`;
 }
