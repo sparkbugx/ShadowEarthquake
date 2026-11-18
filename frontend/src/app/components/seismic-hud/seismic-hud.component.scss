@@ -73,7 +73,7 @@
      anchor (wide, short monitors). */
   --u: max(0.6px, min(calc(var(--art-w) / 760), calc(100vw / 370), calc(100dvh / 640)));
   width: calc(340 * var(--u));
-  padding: calc(10 * var(--u)) calc(12 * var(--u)) calc(12 * var(--u));
+  padding: calc(10 * var(--u)) calc(10 * var(--u)) calc(12 * var(--u));
 }
 
 .hud-overlay--alert {
@@ -101,6 +101,7 @@
 }
 
 .hud__banner {
+  text-align: left;
   margin: 0 0 calc(6 * var(--u));
   font-size: calc(7 * var(--u));
   line-height: 1.6;
@@ -120,6 +121,7 @@
 
 .hud__scan,
 .hud__stale {
+  text-align: left;
   margin: 0;
   font-family: 'VT323', monospace;
   font-size: calc(18 * var(--u));
@@ -140,9 +142,11 @@
 }
 
 .hud__slot {
+  position: relative;
   display: block;
   width: 100%;
-  padding: calc(1 * var(--u)) calc(4 * var(--u));
+  /* Left gutter reserved for the "> " cursor so the numbers stay in one column. */
+  padding: calc(1 * var(--u)) 0 calc(1 * var(--u)) calc(12 * var(--u));
   border: 0;
   background: transparent;
   font-family: 'VT323', monospace;
@@ -150,7 +154,7 @@
   line-height: 1.05;
   letter-spacing: calc(0.5 * var(--u));
   color: var(--se-dim);
-  text-align: center;
+  text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -162,7 +166,9 @@
 }
 
 .hud__slot--active:not(.hud__slot--empty)::before {
-  content: '> ';
+  content: '>';
+  position: absolute;
+  left: 0;
 }
 
 .hud__slot--empty {
