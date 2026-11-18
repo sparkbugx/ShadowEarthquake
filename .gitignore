@@ -1,0 +1,25 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Angular
+frontend/dist/
+frontend/.angular/
+
+# .NET
+backend/**/bin/
+backend/**/obj/
+*.user
+.vs/
+
+# Local secrets
+appsettings.*.local.json
+.env
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+
+shadowearthquake_claude_prompt.md
+

@@ -1,0 +1,17 @@
+@api = http://localhost:5080
+
+GET {{api}}/api/earthquakes/status
+Accept: application/json
+
+###
+
+POST {{api}}/api/earthquakes/scan-report
+Content-Type: application/json
+
+{
+  "scannedAtUtc": "2026-11-17T18:45:00Z",
+  "scannedAtGuatemala": "2026-11-17 12:45:00 CST",
+  "foundEarthquakeInLast15Min": false,
+  "statusMessage": "No earthquake registered in the last 15 minutes",
+  "events": []
+}

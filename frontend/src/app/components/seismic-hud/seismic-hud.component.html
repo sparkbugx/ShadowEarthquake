@@ -1,0 +1,105 @@
+<section class="stage" [class.stage--alert]="alert()" aria-label="ShadowEarthquake Guatemala seismic monitor">
+  <div class="stage__art-box">
+  <img
+    class="stage__art"
+    src="assets/shadow-bg-clean.png"
+    alt="1-bit pixel art: a masked figure in a tiled corridor, seen from first person holding a blade"
+    width="800"
+    height="600"
+  />
+
+  <div class="hud-overlay" [class.hud-overlay--alert]="alert()" role="region" aria-live="polite">
+    <h1 class="hud__title">SEISMIC ACTIONS - GTM</h1>
+    <div class="hud__rule" aria-hidden="true"></div>
+
+    @if (seismic.loading()) {
+      <p class="hud__banner hud__banner--blink">[ SCANNING SEISMIC NETWORK... ]</p>
+    } @else if (seismic.error(); as err) {
+      <p class="hud__banner hud__banner--alert">[ {{ err }} ]</p>
+    } @else if (state(); as s) {
+      @if (s.earthquakeInLast15Minutes) {
+        <p class="hud__banner hud__banner--alert">[ ! SEISMIC ACTIVITY DETECTED IN LAST 15 MIN ! ]</p>
+      } @else {
+        <p class="hud__banner">[ NO EARTHQUAKE REGISTERED IN THE LAST 15 MINUTES ]</p>
+      }
+      <p class="hud__scan">LAST SCAN: {{ s.lastScanFormattedCST ?? 'PENDING' }}</p>
+      @if (staleMinutes(); as mins) {
+        <p class="hud__stale">! SCAN DATA IS {{ mins }} MIN OLD</p>
+      }
+    }
+
+    <ol class="hud__slots">
+      @for (slot of slots(); track slot.index) {
+        <li>
+          <button
+            type="button"
+            class="hud__slot"
+            [id]="'hud-slot-' + slot.index"
+            [class.hud__slot--active]="activeIndex() === slot.index"
+            [class.hud__slot--empty]="!slot.quake"
+            [attr.aria-disabled]="!slot.quake"
+            [attr.aria-label]="slot.quake ? 'Earthquake ' + (slot.index + 1) + ': ' + slot.label + '. Open details.' : 'No record'"
+            (mouseenter)="activeIndex.set(slot.index)"
+            (focus)="activeIndex.set(slot.index)"
+            (click)="open(slot)"
+          >
+            {{ slot.index + 1 }}. {{ slot.label }}
+          </button>
+        </li>
+      }
+    </ol>
+  </div>
+  </div>
+</section>
+
+<p class="stage__footer">
+  SOURCE: USGS FDSN &middot;
+  {{ seismic.source() === 'api' ? 'LIVE API' : seismic.source() === 'static' ? 'REPO SNAPSHOT' : '...' }}
+  &middot; AUTO-REFRESH 60S &middot; KEYS 1-4
+</p>
+
+<dialog #detailDialog class="modal" aria-labelledby="modal-title" (close)="onDialogClosed()" (click)="onDialogClick($event)">
+  @if (selected(); as q) {
+    <div class="modal__panel">
+      <header class="modal__header">
+        <h2 id="modal-title">TREMOR REPORT</h2>
+        <button type="button" class="modal__close" (click)="close()" aria-label="Close">[X]</button>
+      </header>
+      <div class="hud__rule" aria-hidden="true"></div>
+
+      <dl class="modal__grid">
+        <dt>MAGNITUDE</dt>
+        <dd class="modal__mag">{{ q.magnitude | number: '1.1-1' }} M</dd>
+
+        <dt>REGION</dt>
+        <dd>{{ regionLabel(q) }}</dd>
+
+        <dt>PLACE</dt>
+        <dd>{{ q.place }}</dd>
+
+        <dt>COORDINATES</dt>
+        <dd>
+          <a [href]="mapUrl(q)" target="_blank" rel="noopener">
+            {{ q.latitude | number: '1.4-4' }}&deg;, {{ q.longitude | number: '1.4-4' }}&deg;
+          </a>
+        </dd>
+
+        <dt>DEPTH</dt>
+        <dd>{{ q.depthKm | number: '1.1-1' }} KM</dd>
+
+        <dt>TIMESTAMP</dt>
+        <dd>{{ q.occurredAtGuatemala }}</dd>
+
+        <dt>EVENT ID</dt>
+        <dd>{{ q.externalId }}</dd>
+
+        <dt>SOURCE</dt>
+        <dd>
+          <a [href]="q.sourceUrl" target="_blank" rel="noopener">{{ sourceName(q) }} EVENT PAGE &gt;</a>
+        </dd>
+      </dl>
+
+      <p class="modal__hint">REGION = NEAREST DEPARTMENT TO EPICENTER &middot; ESC TO CLOSE</p>
+    </div>
+  }
+</dialog>

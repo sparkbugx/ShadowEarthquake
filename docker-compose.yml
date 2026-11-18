@@ -1,0 +1,25 @@
+name: shadowearthquake
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: shadowearthquake-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: shadowearthquake
+      POSTGRES_USER: shadow
+      POSTGRES_PASSWORD: shadow
+      TZ: UTC
+    ports:
+      - "5432:5432"
+    volumes:
+      # PostgreSQL 18+ images keep PGDATA in a version-specific subfolder of /var/lib/postgresql
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shadow -d shadowearthquake"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:

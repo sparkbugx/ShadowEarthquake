@@ -1,0 +1,17 @@
+{
+  "name": "shadowearthquake-scanner",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "ShadowEarthquake 15-minute Guatemala seismic scanner + image cleaner",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "clean-image": "node clean-image.mjs",
+    "scan": "node check-guatemala-quakes.mjs"
+  },
+  "dependencies": {
+    "sharp": "^0.35.5"
+  }
+}

@@ -1,0 +1,330 @@
+/* Full-screen "cover" stage: the 4:3 art box always covers the viewport (cropping
+   the overflow, like background-size: cover) and stays centred on the figure's
+   chest, so the HUD stays anchored on monitors, tablets and phones alike. */
+:host {
+  position: fixed;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  background: #000000;
+  /* Art box size = cover of the viewport at 4:3. */
+  --art-w: max(100vw, calc(100dvh * 4 / 3));
+  --art-h: max(100dvh, calc(100vw * 3 / 4));
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.stage__art-box {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--art-w);
+  height: var(--art-h);
+  transform: translate(-50%, -50%);
+}
+
+.stage__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  user-select: none;
+}
+
+.stage--alert {
+  animation: screen-shake 4s steps(1, end) infinite;
+}
+
+.stage__footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: max(8px, env(safe-area-inset-bottom));
+  margin: 0;
+  padding: 0 16px;
+  text-align: center;
+  font-family: 'VT323', monospace;
+  font-size: clamp(13px, 1.1vw, 18px);
+  letter-spacing: 1px;
+  color: var(--se-dim);
+  text-shadow: 0 0 4px #000, 0 0 2px #000;
+  pointer-events: none;
+}
+
+/* ---------- HUD overlay (where "ACTIONS" used to be) ---------- */
+.hud-overlay {
+  position: absolute;
+  /* Chest anchor (55.5%), lifted only when a short screen would push the HUD
+     below the visible bottom edge (landscape phones, ultra-wide monitors). */
+  top: min(55.5%, calc((var(--art-h) + 100dvh) / 2 - 262 * var(--u) - 30px));
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.88);
+  color: #e5e5e5;
+  font-family: 'Press Start 2P', 'VT323', monospace;
+  text-align: center;
+  pointer-events: auto;
+  /* Scale unit: grows with the art (340px HUD on a 760px-wide art), but never
+     wider than the screen (phones) nor taller than what's left below the
+     anchor (wide, short monitors). */
+  --u: max(0.6px, min(calc(var(--art-w) / 760), calc(100vw / 370), calc(100dvh / 640)));
+  width: calc(340 * var(--u));
+  padding: calc(10 * var(--u)) calc(12 * var(--u)) calc(12 * var(--u));
+}
+
+.hud-overlay--alert {
+  box-shadow:
+    0 0 0 2px var(--se-red),
+    0 0 12px 2px rgba(255, 42, 42, 0.55);
+  animation: red-pulse 1.2s steps(2, jump-none) infinite;
+}
+
+.hud__title {
+  margin: 0;
+  font-size: calc(11 * var(--u));
+  font-weight: normal;
+  line-height: 1.4;
+  letter-spacing: calc(1 * var(--u));
+  color: #ffffff;
+}
+
+/* The white horizontal underline from the original "ACTIONS" header. */
+.hud__rule {
+  width: calc(56 * var(--u));
+  height: calc(2 * var(--u));
+  margin: calc(8 * var(--u)) auto calc(10 * var(--u));
+  background: #ffffff;
+}
+
+.hud__banner {
+  margin: 0 0 calc(6 * var(--u));
+  font-size: calc(7 * var(--u));
+  line-height: 1.6;
+  color: #ffffff;
+}
+
+.hud__banner--alert {
+  color: var(--se-red);
+  text-shadow:
+    calc(1 * var(--u)) 0 0 #000,
+    0 0 calc(6 * var(--u)) rgba(255, 42, 42, 0.9);
+}
+
+.hud__banner--blink {
+  animation: blink 1s steps(2, jump-none) infinite;
+}
+
+.hud__scan,
+.hud__stale {
+  margin: 0;
+  font-family: 'VT323', monospace;
+  font-size: calc(18 * var(--u));
+  line-height: 1;
+  color: #cfcfcf;
+}
+
+.hud__stale {
+  margin-top: calc(2 * var(--u));
+  color: var(--se-dim);
+}
+
+/* ---------- 1.-4. slots ---------- */
+.hud__slots {
+  list-style: none;
+  margin: calc(10 * var(--u)) 0 0;
+  padding: 0;
+}
+
+.hud__slot {
+  display: block;
+  width: 100%;
+  padding: calc(1 * var(--u)) calc(4 * var(--u));
+  border: 0;
+  background: transparent;
+  font-family: 'VT323', monospace;
+  font-size: calc(19 * var(--u));
+  line-height: 1.05;
+  letter-spacing: calc(0.5 * var(--u));
+  color: var(--se-dim);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.hud__slot--active {
+  color: #ffffff;
+}
+
+.hud__slot--active:not(.hud__slot--empty)::before {
+  content: '> ';
+}
+
+.hud__slot--empty {
+  color: var(--se-faint);
+  cursor: default;
+}
+
+.hud__slot:focus-visible {
+  outline: calc(1 * var(--u)) dashed #ffffff;
+  outline-offset: -1px;
+}
+
+/* ---------- 1-bit pixel modal ---------- */
+.modal {
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #e5e5e5;
+  overflow: visible;
+}
+
+.modal::backdrop {
+  background-color: rgba(0, 0, 0, 0.75);
+  /* 1-bit checker dither */
+  background-image: repeating-conic-gradient(#000 0 25%, transparent 0 50%);
+  background-size: 4px 4px;
+}
+
+.modal__panel {
+  background: #000000;
+  padding: 18px 20px 14px;
+  /* Stepped pixel border */
+  box-shadow:
+    0 -4px 0 0 #fff,
+    0 4px 0 0 #fff,
+    -4px 0 0 0 #fff,
+    4px 0 0 0 #fff,
+    0 0 0 8px #000,
+    0 -8px 0 4px #000,
+    8px 8px 0 4px #3a3a3a;
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+}
+
+.modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal__header h2 {
+  margin: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  font-weight: normal;
+  color: #ffffff;
+}
+
+.modal__close {
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.modal__close:hover,
+.modal__close:focus-visible {
+  background: #ffffff;
+  color: #000000;
+  outline: none;
+}
+
+.modal .hud__rule {
+  margin-left: 0;
+}
+
+.modal__grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin: 0;
+  font-family: 'VT323', monospace;
+  font-size: 21px;
+  line-height: 1.1;
+}
+
+.modal__grid dt {
+  color: var(--se-dim);
+}
+
+.modal__grid dd {
+  margin: 0;
+  color: #ffffff;
+  overflow-wrap: anywhere;
+}
+
+.modal__mag {
+  font-size: 26px;
+}
+
+.modal__grid a {
+  color: #ffffff;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+
+.modal__grid a:hover,
+.modal__grid a:focus-visible {
+  background: #ffffff;
+  color: #000000;
+  outline: none;
+}
+
+.modal__hint {
+  margin: 14px 0 0;
+  font-family: 'VT323', monospace;
+  font-size: 15px;
+  color: var(--se-faint);
+}
+
+@media (max-width: 480px) {
+  .modal__grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .modal__grid dd {
+    margin-bottom: 8px;
+  }
+}
+
+/* ---------- animations ---------- */
+@keyframes screen-shake {
+  0% { transform: translate(0, 0); }
+  1% { transform: translate(-3px, 1px); }
+  2% { transform: translate(3px, -2px); }
+  3% { transform: translate(-2px, 2px); }
+  4% { transform: translate(2px, 0); }
+  5% { transform: translate(-1px, -1px); }
+  6%, 100% { transform: translate(0, 0); }
+}
+
+@keyframes red-pulse {
+  0% { box-shadow: 0 0 0 2px var(--se-red), 0 0 12px 2px rgba(255, 42, 42, 0.55); }
+  100% { box-shadow: 0 0 0 2px #7a0000, 0 0 4px 0 rgba(255, 42, 42, 0.25); }
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage--alert,
+  .hud-overlay--alert,
+  .hud__banner--blink {
+    animation: none;
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "projectName": "ShadowEarthquake",
+  "country": "Guatemala",
+  "lastScanTimestampUtc": "2026-11-18T01:12:45.804Z",
+  "lastScanFormattedCST": "2026-11-17 19:12:45 CST",
+  "earthquakeInLast15Minutes": false,
+  "statusMessage": "No earthquake registered in the last 15 minutes",
+  "recentEarthquakes": [
+    {
+      "externalId": "us7000tysx",
+      "magnitude": 4.4,
+      "place": "6 km ENE of Bachajón, Mexico",
+      "region": "MEXICO",
+      "depthKm": 10,
+      "latitude": 17.0729,
+      "longitude": -92.1344,
+      "occurredAtUtc": "2026-11-17T15:39:08.643Z",
+      "occurredAtGuatemala": "2026-11-17 09:39:08 CST",
+      "sourceUrl": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000tysx"
+    },
+    {
+      "externalId": "us6000u41s",
+      "magnitude": 4.2,
+      "place": "4 km WSW of Patzité, Guatemala",
+      "region": "TOTONICAPAN",
+      "depthKm": 181.7,
+      "latitude": 14.9543,
+      "longitude": -91.2451,
+      "occurredAtUtc": "2026-10-22T07:28:09.864Z",
+      "occurredAtGuatemala": "2026-10-22 01:28:09 CST",
+      "sourceUrl": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000u41s"
+    },
+    {
+      "externalId": "us6000u3cu",
+      "magnitude": 4.6,
+      "place": "4 km ENE of San José El Ídolo, Guatemala",
+      "region": "SUCHITEPEQUEZ",
+      "depthKm": 98.8,
+      "latitude": 14.4605,
+      "longitude": -91.3771,
+      "occurredAtUtc": "2026-10-19T14:47:44.128Z",
+      "occurredAtGuatemala": "2026-10-19 08:47:44 CST",
+      "sourceUrl": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000u3cu"
+    },
+    {
+      "externalId": "us6000u2le",
+      "magnitude": 4.4,
+      "place": "63 km S of Champerico, Guatemala",
+      "region": "RETALHULEU",
+      "depthKm": 26.4,
+      "latitude": 13.7223,
+      "longitude": -91.9841,
+      "occurredAtUtc": "2026-10-15T21:29:05.954Z",
+      "occurredAtGuatemala": "2026-10-15 15:29:05 CST",
+      "sourceUrl": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000u2le"
+    }
+  ]
+}

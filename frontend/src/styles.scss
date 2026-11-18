@@ -1,0 +1,35 @@
+/* ShadowEarthquake — global 1-bit styles */
+:root {
+  color-scheme: dark;
+  --se-black: #000000;
+  --se-white: #ffffff;
+  --se-text: #e5e5e5;
+  --se-dim: #8a8a8a;
+  --se-faint: #4a4a4a;
+  --se-red: #ff2a2a;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: #000000;
+  color: var(--se-text);
+  font-family: 'VT323', monospace;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+img {
+  image-rendering: pixelated;
+}
+
+::selection {
+  background: var(--se-white);
+  color: var(--se-black);
+}

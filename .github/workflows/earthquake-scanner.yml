@@ -1,0 +1,85 @@
+name: ShadowEarthquake 15-Minute Scanner
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# Never run two scans at once (avoids push races); let the running one finish.
+concurrency:
+  group: earthquake-scanner
+  cancel-in-progress: false
+
+jobs:
+  scan-and-build:
+    name: Scan Guatemala, commit state, build frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Set up Node.js (latest LTS)
+        uses: actions/setup-node@v6
+        with:
+          node-version: 'lts/*'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Run 15-minute Guatemala seismic scan
+        env:
+          # Optional: set repository secrets to also persist into a hosted PostgreSQL-backed API.
+          BACKEND_API_URL: ${{ secrets.BACKEND_API_URL || 'off' }}
+          SCANNER_API_KEY: ${{ secrets.SCANNER_API_KEY }}
+        run: node scanner/check-guatemala-quakes.mjs
+
+      - name: Commit & push updated seismic state
+        run: |
+          SCAN_TIME=$(TZ="America/Guatemala" date +"%Y-%m-%d %H:%M:%S CST")
+          git config user.name "ShadowEarthquake-Bot"
+          git config user.email "bot@shadowearthquake.local"
+          git add frontend/public/assets/data/guatemala-seismic-state.json
+          git commit -m "New update for the earthquake in Guatemala - ${SCAN_TIME}" --allow-empty
+          # Rebase onto anything pushed meanwhile, retry a few times on a race.
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin "${{ github.event.repository.default_branch }}" && git push && break
+            echo "Push attempt ${attempt} failed, retrying..."; sleep $((attempt * 5))
+          done
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Angular (production)
+        working-directory: frontend
+        run: npx ng build --configuration production --base-href "/${{ github.event.repository.name }}/"
+
+      - name: SPA fallback for GitHub Pages
+        run: cp frontend/dist/frontend/browser/index.html frontend/dist/frontend/browser/404.html
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: frontend/dist/frontend/browser
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: scan-and-build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
