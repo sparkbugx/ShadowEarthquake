@@ -18,16 +18,14 @@ concurrency:
 jobs:
   scan-and-build:
     name: Scan Guatemala, commit state, build frontend
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.repository.default_branch }}
+        uses: actions/checkout@v4
 
       - name: Set up Node.js (latest LTS)
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
           cache: npm
@@ -35,7 +33,6 @@ jobs:
 
       - name: Run 15-minute Guatemala seismic scan
         env:
-          # Optional: set repository secrets to also persist into a hosted PostgreSQL-backed API.
           BACKEND_API_URL: ${{ secrets.BACKEND_API_URL || 'off' }}
           SCANNER_API_KEY: ${{ secrets.SCANNER_API_KEY }}
         run: node scanner/check-guatemala-quakes.mjs
@@ -47,16 +44,16 @@ jobs:
           git config user.email "bot@shadowearthquake.local"
           git add frontend/public/assets/data/guatemala-seismic-state.json
           git commit -m "New update for the earthquake in Guatemala - ${SCAN_TIME}" --allow-empty
-          # Rebase onto anything pushed meanwhile, retry a few times on a race.
+          
+          # Use current branch (HEAD) instead of event payload property
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
           for attempt in 1 2 3; do
-            git pull --rebase --autostash origin "${{ github.event.repository.default_branch }}" && git push && break
+            git pull --rebase --autostash origin "${CURRENT_BRANCH}" && git push origin "${CURRENT_BRANCH}" && break
             echo "Push attempt ${attempt} failed, retrying..."; sleep $((attempt * 5))
           done
 
       - name: Install frontend dependencies
         working-directory: frontend
-        # npm ci fails on Linux when the lock file was generated on Windows (npm drops
-        # platform-specific optional deps like @emnapi/*). npm install resolves them.
         run: npm install --no-audit --no-fund
 
       - name: Build Angular (production)
@@ -67,21 +64,21 @@ jobs:
         run: cp frontend/dist/frontend/browser/index.html frontend/dist/frontend/browser/404.html
 
       - name: Configure GitHub Pages
-        uses: actions/configure-pages@v6
+        uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@v3
         with:
           path: frontend/dist/frontend/browser
 
   deploy:
     name: Deploy to GitHub Pages
     needs: scan-and-build
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@v4
