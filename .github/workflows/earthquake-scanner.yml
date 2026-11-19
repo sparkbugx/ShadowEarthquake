@@ -1,15 +1,16 @@
-name: ShadowEarthquake 15-Minute Scanner
+name: ShadowEarthquake 5-Minute Scanner
 
 on:
   # PRIMARY trigger: an external cron (VPS crontab or cron-job.org) calls the
-  # GitHub API every 15 minutes. GitHub's own scheduler is best-effort and
+  # GitHub API every 5 minutes. GitHub's own scheduler is best-effort and
   # routinely delays or drops high-frequency schedules, so it cannot be the
-  # only trigger for a 15-minute cadence.
+  # only trigger for a 5-minute cadence.
   repository_dispatch:
     types: [scan]
-  # FALLBACK trigger: off the top of the hour to dodge GitHub's peak-load drops.
+  # FALLBACK trigger: every 5 min (GitHub's minimum), offset off :00 to dodge
+  # GitHub's peak-load drops. Still best-effort: runs may arrive late or not at all.
   schedule:
-    - cron: '7,22,37,52 * * * *'
+    - cron: '2-59/5 * * * *'
   workflow_dispatch:
 
 # Nothing may write unless a job asks for it below (same pattern as REDEYE).
@@ -42,7 +43,7 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Run 15-minute Guatemala seismic scan
+      - name: Run Guatemala seismic scan
         env:
           BACKEND_API_URL: ${{ secrets.BACKEND_API_URL || 'off' }}
           SCANNER_API_KEY: ${{ secrets.SCANNER_API_KEY }}
