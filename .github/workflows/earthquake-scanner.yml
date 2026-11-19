@@ -51,14 +51,20 @@ jobs:
       - name: Commit & push updated seismic state
         run: |
           SCAN_TIME=$(date +"%Y-%m-%d %H:%M:%S CST")
-          git config user.name "ShadowEarthquake-Bot"
-          git config user.email "bot@shadowearthquake.local"
+          # Committer = the Actions bot; AUTHOR = the repo owner's GitHub noreply
+          # address. GitHub only counts a commit on the contribution graph when the
+          # author email belongs to an account, so a made-up address like
+          # bot@shadowearthquake.local is never credited. (Same identity REDEYE's
+          # git-auto-commit-action produces.)
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          AUTHOR="sparkbugx <218636433+sparkbugx@users.noreply.github.com>"
           git add frontend/public/assets/data/guatemala-seismic-state.json
           if git diff --cached --quiet; then
             echo "State file unchanged; nothing to commit."
             exit 0
           fi
-          git commit -m "New update for the earthquake in Guatemala - ${SCAN_TIME}"
+          git commit --author="$AUTHOR" -m "New update for the earthquake in Guatemala - ${SCAN_TIME}"
 
           BRANCH="${GITHUB_REF_NAME:-main}"
           for attempt in 1 2 3; do
