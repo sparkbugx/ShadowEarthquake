@@ -488,9 +488,15 @@
   100% { transform: translate(0, calc(var(--px) * -2)) rotate(0deg); }
 }
 
+/* The gentle idle hand sway always plays, even with reduced motion on;
+   only the alert tremble/shake is turned off for those users. */
 @media (prefers-reduced-motion: reduce) {
-  .stage__hand,
-  .stage--alert .stage__hand,
+  .stage--alert .stage__hand {
+    animation: hand-idle 3.6s ease-in-out infinite;
+  }
+  .stage--alert .stage__hand--left {
+    animation: hand-left-idle 4.4s ease-in-out -1.3s infinite;
+  }
   .stage--alert,
   .hud-overlay--alert,
   .hud__banner--blink {
