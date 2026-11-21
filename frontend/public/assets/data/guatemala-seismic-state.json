@@ -1,8 +1,8 @@
 {
   "projectName": "ShadowEarthquake",
   "country": "Guatemala",
-  "lastScanTimestampUtc": "2026-11-21T14:52:48.442Z",
-  "lastScanFormattedCST": "2026-11-21 08:52:48 CST",
+  "lastScanTimestampUtc": "2026-11-21T20:43:17.739Z",
+  "lastScanFormattedCST": "2026-11-21 14:43:17 CST",
   "earthquakeInLast15Minutes": false,
   "statusMessage": "No earthquake registered in the last 15 minutes",
   "recentEarthquakes": [
@@ -21,12 +21,12 @@
     {
       "externalId": "us7000tysx",
       "magnitude": 4.4,
-      "place": "6 km ENE of Bachajón, Mexico",
+      "place": "5 km NE of Bachajón, Mexico",
       "region": "MEXICO",
       "depthKm": 10,
-      "latitude": 17.0729,
-      "longitude": -92.1344,
-      "occurredAtUtc": "2026-11-17T15:39:08.643Z",
+      "latitude": 17.0781,
+      "longitude": -92.1568,
+      "occurredAtUtc": "2026-11-17T15:39:08.661Z",
       "occurredAtGuatemala": "2026-11-17 09:39:08 CST",
       "sourceUrl": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000tysx"
     },
