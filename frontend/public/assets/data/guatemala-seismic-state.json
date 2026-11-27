@@ -1,8 +1,8 @@
 {
   "projectName": "ShadowEarthquake",
   "country": "Guatemala",
-  "lastScanTimestampUtc": "2026-11-27T02:58:39.387Z",
-  "lastScanFormattedCST": "2026-11-26 20:58:39 CST",
+  "lastScanTimestampUtc": "2026-11-27T11:59:31.741Z",
+  "lastScanFormattedCST": "2026-11-27 05:59:31 CST",
   "earthquakeInLast15Minutes": false,
   "statusMessage": "No earthquake registered in the last 15 minutes",
   "recentEarthquakes": [
